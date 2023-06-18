@@ -30,6 +30,7 @@ services:
     
     volumes:
                 - ./arquivos/Cliente1:/arquivos
+                - ./Python:/codigo_python
   
   cliente2:
     image: python
@@ -44,6 +45,7 @@ services:
     
     volumes:
                 - ./arquivos/Cliente2:/arquivos
+                - ./Python:/codigo_python
   
   cliente3:
     image: python
@@ -58,6 +60,7 @@ services:
     
     volumes:
                 - ./arquivos/Cliente3:/arquivos
+                - ./Python:/codigo_python
 
 networks:
   net-10.9.0.0:
