@@ -1,0 +1,67 @@
+version: "3"
+
+services:
+  servidor:
+    image: python
+    container_name: servidor-proj
+    tty: true
+    cap_add:
+                - ALL
+    privileged: true
+    networks:
+      net-10.9.0.0:
+        ipv4_address: 10.9.0.10 
+    
+    command: bash -c "tail -f /dev/null"
+    volumes:
+                - ./arquivos/Servidor:/arquivos
+                - ./Python:/codigo_python
+
+  cliente1:
+    image: python
+    container_name: cliente1
+    tty: true
+    cap_add:
+                - ALL
+    privileged: true
+    networks:
+      net-10.9.0.0:
+        ipv4_address: 10.9.0.11 
+    
+    volumes:
+                - ./arquivos/Cliente1:/arquivos
+  
+  cliente2:
+    image: python
+    container_name: cliente2
+    tty: true
+    cap_add:
+                - ALL
+    privileged: true
+    networks:
+      net-10.9.0.0:
+        ipv4_address: 10.9.0.12 
+    
+    volumes:
+                - ./arquivos/Cliente2:/arquivos
+  
+  cliente3:
+    image: python
+    container_name: cliente3
+    tty: true
+    cap_add:
+                - ALL
+    privileged: true
+    networks:
+      net-10.9.0.0:
+        ipv4_address: 10.9.0.13 
+    
+    volumes:
+                - ./arquivos/Cliente3:/arquivos
+
+networks:
+  net-10.9.0.0:
+    name: net-10.9.0.0
+    ipam:
+      config:
+        - subnet: 10.9.0.0/24
