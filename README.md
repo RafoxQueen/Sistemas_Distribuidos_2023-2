@@ -1,1 +1,1 @@
-# Repositório para armazenar meus progetos da disciplina de Sistemas Distribido da UFABC no periodo de 2023.2
+# Repositório para armazenar meus projetos da disciplina de Sistemas Distribido da UFABC no periodo de 2023.2
