@@ -1,11 +1,23 @@
-import socket
+import socket, threading, sys
 
 s = socket.socket()
 print("Socket succefully created")
-port = 9000
+port = 9009
 
-s.connect(("10.9.0.10", port))
+s.connect(("127.0.0.1", port))
 
 print(s.recv(1024).decode())
 
-s.close()
+def aceitarConexao(c):
+    while True:
+        try:
+            text = input("text: ")
+            msg = c.send(text.encode())
+            if msg == "Encerrar2":
+                s.closer()
+            else:
+                print(msg)
+        except:
+            return
+
+aceitarConexao(s)

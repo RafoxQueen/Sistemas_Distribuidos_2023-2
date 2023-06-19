@@ -1,20 +1,44 @@
 #Servidor
-import socket
+import socket, threading, sys
 
-s = socket.socket()
-print("Socket succefully created")
-port = 9000
+clientes = []
 
-s.bind(("", port))
-print("socket binded to %s"%(port))
+def main():
+    try:
+        s = socket.socket()
+        print("Socket succefully created")
+        port = 9009
 
-s.listen(5)
-print("Socket is listening")
+        s.bind(("", port))
+        print("socket binded to %s"%(port))
 
-while True:
-	c, addr = s.accept()
-	print("Got connection from ", addr)
-	c.send("Thank you for connectig".encode())
-	c.close()
+        s.listen(5)
+        print("Socket is listening")
+    except:
+        print("\n Não foi possivel criar servidor")
+        
+    while True:
+        c, addr = s.accept()
+        
+        print("Got connection from ", addr)
+        c.send("Thank you for connectig".encode())
+        clientes.append(c)
+        
+        print("TRead")
+        aceita_thread = threading.Thread(target=aceitarConexao, args=[c])
+        aceita_thread.start()
+
+
+def aceitarConexao(c):
+    while True:
+        try:
+            msg = c.recv(1024).decode()
+            if msg == "Encerrar2":
+                return "a"
+            else:
+                print(msg)
+        except:
+            return "delete"
+
 	
-	break
+main()
