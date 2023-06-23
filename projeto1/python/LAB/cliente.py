@@ -2,7 +2,7 @@ import socket, threading, os
 
 s = socket.socket()
 print("Socket succefully created")
-port = 9000
+port = 1099
 
 s.connect(("127.0.0.1", port))
 
