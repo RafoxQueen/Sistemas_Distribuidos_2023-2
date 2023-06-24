@@ -1,7 +1,9 @@
 #Servidor
-import socket, threading, os
+import socket, threading
 
 diretorio = "../teste/"
+with open(diretorio+"test.txt", "w") as arquivo:
+    text = arquivo.write("")
 
 def main():
     try:
@@ -87,7 +89,6 @@ def atualizaDados(arq, addr, porta,pasta=diretorio):
         
 
 def aceitarConexao(c, addr):
-    conec = {}
     while True:
         try:
             msg = c.recv(2048).decode()
@@ -107,17 +108,15 @@ def aceitarConexao(c, addr):
 
                 
             elif msg[0] == "UPDATE":
-                c.send("A".encode())
-                arquivo = c.recv(1024).decode()
-                c.send("A".encode())
-                porta = c.recv(1024).decode()
-                atualizaDados(arquivo,addr,porta)
-                c.send("UPDATE_OK".encode())
+                arquivo = msg[1]
+                if msg[-1]=="fim":
+                    porta = msg[2]
+                    atualizaDados(arquivo,addr,porta)
+                    c.send("UPDATE_OK".encode())
                 
             else:
                 c.send("Reenvie a mensagem".encode())
         except:
-            c.close()
             break
 
 
