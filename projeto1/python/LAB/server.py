@@ -4,9 +4,8 @@ import socket, threading, os
 diretorio = "../teste/"
 
 def main():
-    conec = {}
     try:
-        s = socket.socket()
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         port = 1099
         
         s.bind(("", port))
@@ -18,18 +17,17 @@ def main():
     while True:
         c, addr = s.accept()
         
-        c.send("Thank you for connectig".encode())
+        #aceitarConexao(c, addr)
         
-        aceitarConexao(c, addr, conec)
-        
-        #aceita_thread = threading.Thread(target=aceitarConexao, args=[c, addr, conec])
-        #aceita_thread.start()
+        aceita_thread = threading.Thread(target=aceitarConexao, args=[c, addr])
+        aceita_thread.start()
 
 
-def gravaDados(arqvs,addr,porta,pasta=diretorio):
+def gravaDados(arqvs,addr,pasta=diretorio):
     data = ""
-    for arq in arqvs:
-        data += (arq+",")
+    arqvs = arqvs.split(":")
+    porta = arqvs[0]
+    data = arqvs[1]
     
     print(f"Peer {addr[0]}:{addr[1]} adicionado com arquivos {data}")
     conec = f"{addr[0]}:{porta}"
@@ -43,16 +41,21 @@ def pesquisaDados(arq, pasta=diretorio):
     arquivos = {}
     chaves = []
     
+    
     with open(pasta+"test.txt", "r") as arquivo:
         linhas = arquivo.readlines()
     
     for linha in linhas:
-        data = linha.split(";")
-        arquivos[data[0]] = data[1].split(",")
-    
+        try:
+            data = linha.split(";")
+            arquivos[data[0]] = data[1].split(",")
+        except:
+            arquivos["erro"] = linha
+
+    arq=""+arq
+
     for chave, valor in arquivos.items():
-        if str(arq) in str(valor):
-            print(chave)
+        if arq in valor:
             chaves.append(chave)
     
     return str(chaves)
@@ -83,36 +86,27 @@ def atualizaDados(arq, addr, porta,pasta=diretorio):
             linha = arquivo.writelines(linhas)
         
 
-def aceitarConexao(c, addr, conec):
+def aceitarConexao(c, addr):
+    conec = {}
     while True:
         try:
-            msg = c.recv(1024).decode()
-            
-            if msg == "JOIN":
-                arquivos = []
-                c.send("A".encode())
-                porta = c.recv(1024).decode()
-                while True:
-                    c.send("A".encode())
-                    msg = c.recv(1024).decode()
-                    if msg == "___":
-                        conec[addr] = arquivos
-                        c.send("JOIN_OK".encode())
-                        gravaDados(arquivos,addr,porta)
-                        break
-                    else:
-                        arquivos.append(msg)
-                c.close()
+            msg = c.recv(2048).decode()
+            msg = msg.split(";")
+            if msg[0] == "JOIN":
+                if msg[-1] == "fim":
+                    arquivos = msg[1]
+                    gravaDados(arquivos,addr)
+                    c.send("JOIN_OK".encode())
                 
-            elif msg == "SEARCH":
-                c.send("A".encode())
-                arquivo = c.recv(1024).decode()
-                print(f"Peer {addr[0]}:{addr[1]} solicitou arquivo {arquivo}")
-                ips = pesquisaDados(arquivo)
-                c.send(ips.encode())
-                c.close()
+            elif msg[0] == "SEARCH":
+                arquivo = msg[1]
+                if msg[-1]=="fim":
+                    print(f"Peer {addr[0]}:{addr[1]} solicitou arquivo {arquivo}")
+                    ips = pesquisaDados(arquivo)
+                    c.send(ips.encode())
+
                 
-            elif msg == "UPDATE":
+            elif msg[0] == "UPDATE":
                 c.send("A".encode())
                 arquivo = c.recv(1024).decode()
                 c.send("A".encode())
@@ -120,9 +114,6 @@ def aceitarConexao(c, addr, conec):
                 atualizaDados(arquivo,addr,porta)
                 c.send("UPDATE_OK".encode())
                 
-            elif msg == "Encerrar conexão":
-                c.close()
-                break
             else:
                 c.send("Reenvie a mensagem".encode())
         except:
